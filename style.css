@@ -1,0 +1,79 @@
+.mygame
+{
+    height : 100vh;
+}
+
+
+canvas{
+    background-color: rgb(76, 75, 75);
+    max-width: 100%;
+ 
+}
+*{
+    margin: 0;
+    padding: 0;
+    
+}
+.scoreboard{
+    font: 2px ;
+    width: 50%;
+    top: 5%;
+    left: 5%;
+    height: 50%;
+    color: black;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    display: none;
+    position: fixed ;
+}
+
+form {
+    background-color: rgb(84, 77, 77);
+    position: absolute;
+    border-radius: 5px;
+    display: flex;
+    width: 50%;
+    height: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+form > select,
+form select option {
+    width: 20vw;
+    padding:2vmax;
+    border: solid;
+    border-radius: 30px;
+    font-size: medium;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+form > input , 
+form select input{
+    width: 20vw;
+    padding: 2vmax;
+    border-radius: 10px;
+    font-size: medium;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: all 0.5s;
+    background-color: rgb(95, 133, 239);
+    margin-top: 5px;
+
+}
+
+select:hover{
+    /* background-color: rgb(212, 166, 66); */
+    box-shadow: 0 0 15px rgb(255, 255, 255);
+}
+
+form > input:hover{
+    background-color: rgb(68, 0, 255);
+    box-shadow: 0 0 10px white;
+}
