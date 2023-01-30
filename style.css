@@ -4,10 +4,15 @@
 }
 
 
+
 canvas{
     background-color: rgb(76, 75, 75);
     max-width: 100%;
  
+}
+
+body{
+    overflow: hidden;
 }
 *{
     margin: 0;
@@ -16,10 +21,10 @@ canvas{
 }
 .scoreboard{
     font: 2px ;
-    width: 50%;
+    /* width: 50%; */
     top: 5%;
     left: 5%;
-    height: 50%;
+    /* height: 50%; */
     color: black;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     display: none;
@@ -76,4 +81,41 @@ select:hover{
 form > input:hover{
     background-color: rgb(68, 0, 255);
     box-shadow: 0 0 10px white;
+}
+
+.gameover{
+    background-color: rgba(122,122,122,0.041);
+    border-radius: 10px;
+    position: fixed;
+    top: 50%;
+    height: 100vh;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameover > button{
+    padding: 1vmax;
+    border: 2px solid rgb(255,255,255);
+    cursor: pointer;
+    width: 10vw;
+    background-color: white;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    transition: all 0.5s;
+}
+
+.gameover > button:hover{
+    background-color: rgb(30 , 30 , 34);
+    color: white;
+    box-shadow: 0 0 10px rgb(255 , 255 , 255);
+}
+
+.gameover > div{
+    margin: 2vmax;
+    color: white;
+    font : 600 1.2vmax cursive;
 }

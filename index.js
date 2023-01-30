@@ -1,3 +1,13 @@
+//Importing sound effects
+
+const intro = new Audio("sound/introSong.mp3");
+const gameover = new Audio("sound/gameOver.mp3");
+const heavyWeapon = new Audio("sound/heavyWeapon.mp3");
+const killEnemy = new Audio("sound/killEnemy.mp3");
+const shoot = new Audio("sound/shoooting.mp3") ;
+const bigweapon =  new Audio("sound/hugeWeapon.mp3");
+
+intro.play();
 // A canvas means the drawing paper on which we are making drawings
 const canvas = document.createElement("canvas"); //craeting canvas element/tag
 
@@ -9,6 +19,10 @@ const context = canvas.getContext("2d"); // tlling that we are making a 2d canva
 
 //-------logic for form and button-----
 let difficulty  = 2 ;
+const lightWeaponDamage = 10;
+const heavyWeaponDamage = 20;
+
+let playerscore = 0;
 
 const form = document.querySelector("form");
 const scoreboard = document.querySelector(".scoreboard");
@@ -75,6 +89,45 @@ playerPosition = {
     y :  innerHeight/2
 };
 
+//-----------------------Endscreen--------------(when game gets over)--------------------------
+
+const gameoverloader = () =>{
+  //creating game div , button , highscore
+
+  const gameoverbanner = document.createElement("div");
+  const gameoverbutton = document.createElement("button");
+  const highscore = document.createElement("div");
+
+  //writting highscore of game when it ends
+
+  highscore.innerHTML = `High Score : ${localStorage.getItem("highscore")? localStorage.getItem("highscore"):playerscore}`;
+
+  const oldHighScore = localStorage.getItem("highscore") && localStorage.getItem("highscore");
+
+  if(oldHighScore < playerscore){
+    localStorage.setItem("highscore",playerscore); 
+
+    //updating the highscore
+
+    highscore.innerHTML=`High Score : ${playerscore}`;
+  }
+
+  gameoverbutton.innerText="Play again";
+
+  gameoverbanner.appendChild(highscore);
+  gameoverbanner.appendChild(gameoverbutton);
+
+  //making reload on clicking play again button
+
+  gameoverbutton.onclick = () => {
+    window.location.reload();
+  }
+
+  gameoverbanner.classList.add("gameover");
+
+  document.querySelector("body").appendChild(gameoverbanner);
+}
+
 //------------------------------This is player class-----------------
 class player {
   //A constructor that takes position x , y ,  radius and this is the keyword that is used "x mai jo value pass hogi usko iss constructor function ke x mai daal do" we are using this caz we are using hte same name
@@ -105,12 +158,13 @@ class player {
 //---------------Weapon class-----------------------
 class Weapon {
     //A constructor that takes position x , y ,  radius and this is the keyword that is used "x mai jo value pass hogi usko iss constructor function ke x mai daal do" we are using this caz we are using hte same name
-    constructor(x, y, radius, color , velocity) {
+    constructor(x, y, radius, color , velocity,damage) {
       this.x = x;
       this.y = y;
       this.radius = radius;
       this.color = color;
       this.velocity = velocity ;
+      this.damage=damage;
     }
   
     draw() {
@@ -126,8 +180,37 @@ class Weapon {
     //to update the weapon shooter movement
     update(){
       this.draw();
-        this.x += this.velocity.x ;
-        this.y += this.velocity.y ;
+      this.x += this.velocity.x ;
+      this.y += this.velocity.y ;
+    }
+}
+
+//---------------HugeWeapon class-----------------------
+class HugeWeapon {
+    //A constructor that takes position x , y ,  radius and this is the keyword that is used "x mai jo value pass hogi usko iss constructor function ke x mai daal do" we are using this caz we are using hte same name
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      
+      this.color = color;
+      
+    }
+  
+    draw() {
+      context.beginPath();
+      context.fillStyle = this.color;//to choose color
+      context.fillRect(this.x, this.y, 200,canvas.height);
+      //context.stroke();
+      //instead of giving just boundaries now we want to fill that shape
+  
+      
+      context.fill();//fill function to fill the shape
+    }
+
+    //to update the weapon shooter movement
+    update(){
+      this.draw();
+      this.x += 20;
     }
 }
 
@@ -211,6 +294,7 @@ const abhi = new player(playerPosition.x, playerPosition.y, 10 , "white");
 const weapons = [];//weapons array
 const enemys = [];//Enemy array
 const particles = [];//splach effect particles
+const hugeWapons = [];
 
 //---function that handles all the feaurs of enemy
 //Funtion to spawn enemies at random location
@@ -239,7 +323,7 @@ const getEnimy = ()=> {
 
     }
     
-    //finsding angle between cwntre (means player position) and enemy position
+    //finding angle between centre (means player position) and enemy position
     const myAngle = Math.atan2(canvas.height/2 - random.y  , canvas.width/2 - random.x );
 
     //vmaking velocity or apeed my enemy by multiplying it with different difficulty level(easy , medium , hard, insane)
@@ -262,7 +346,6 @@ let animationId;
 function animation(){
     //making recursion
     animationId = requestAnimationFrame(animation);
-
     //clearing canvas on each frame
     // context.clearRect(0, 0, canvas.width, canvas.height);
     //istead of clearing the rectangle / canvas on each frame we can add new rectangel/canvas to each frame to make effect
@@ -292,6 +375,18 @@ function animation(){
         }
     })
 
+    //generating hugeweapons
+
+    hugeWapons.forEach((hugeWeapon,hugeweaponIndex)=>{
+      //consition to remove hugeweapon when it is out of scope of canvas
+      if(hugeWeapon.x > canvas.width){
+        hugeWapons.splice(hugeweaponIndex , 1);
+      }
+      else{
+        hugeWeapon.update();
+      }
+    })
+
     //generating enemies
     enemys.forEach((enemy,enemyIndex) =>{
       enemy.update();
@@ -303,9 +398,30 @@ function animation(){
       if(distanceBetweenPlayerAndEnemy - abhi.radius - enemy.radius < 1){
         // console.log("Game over")
 
+
         //stop when enemy touch the player
-        // cancelAnimationFrame(animationId);
+        cancelAnimationFrame(animationId);
+        gameover.play();
+        return gameoverloader();
       }
+
+      hugeWapons.forEach((hugeweapon)=>{
+        //distance betweeen hugeweapon and enemy
+        const distancebetweenhugeweaponandenemy = hugeweapon.x - enemy.x;
+
+        if(distancebetweenhugeweaponandenemy <= 200 && distancebetweenhugeweaponandenemy >= -200){
+          //increase score by 10 when it hits one enemy
+          playerscore+=10;
+          
+
+          setTimeout(() => {
+           
+            //deleting the enemy 
+          enemys.splice(enemyIndex , 1);            
+          }, 0);
+        }
+      })
+      // console.log(playerscore);
       //finding index of each weapon
       weapons.forEach((weapon , weaponIndex)=> {
         //distance betweeen enemy and weapon 
@@ -315,13 +431,14 @@ function animation(){
           // console.log("kill enemy");
          
           //reducing size of enemy if they hit
-          if(enemy.radius > 18){
+          if(enemy.radius > weapon.damage + 10){
+            killEnemy.play();
             //previous
             // enemy.radius-=5;//reducing the size of enemy
             //after(Better version)
             //for smooth deletion effect of enemy we can use gsap library 
             gsap.to(enemy,{
-              radius : enemy.radius - 10 ,
+              radius : enemy.radius - weapon.damage ,
             });
             setTimeout(() => {
             weapons.splice(weaponIndex , 1 );
@@ -331,13 +448,23 @@ function animation(){
           }
           //deleting enemy if size is less than 18
           else{
+
+            //increase score by 10 when it hits one enemy
+            playerscore+=10;
+            killEnemy.play();
+
+            //increasing score of the player by using scoreboard html
+            scoreboard.innerHTML =`Score : ${playerscore}`;
+            
             for (let i = 0; i < enemy.radius*5; i++) {
             particles.push(new Particle(weapon.x , weapon.y ,Math.random()*2 , enemy.color ,
               {x:(Math.random()-0.5)*(Math.random()*7) , y:(Math.random() - 0.5)*Math.random()*7}
                )); 
           }
-          
+
             setTimeout(() => {
+             
+              
               //deleting the enemy 
             enemys.splice(enemyIndex , 1);
             //deletinf the weapon
@@ -367,21 +494,73 @@ function animation(){
 
 //eventlistener for weapon on left-click
 canvas.addEventListener("click",(e)=>{
+    intro.pause();
+    shoot.play();
     //Finding angle at which we have to shoot balls
     //atan2 is a math function that takes to input x and y condinate to give angle in radian
     //finsing angle between player position and click co=ordinate
-    const myAngle = Math.atan2(e.clientY - canvas.height/2 , e.clientX - canvas.width/2 )
-
+    const myAngle = Math.atan2(e.clientY - canvas.height / 2 , e.clientX - canvas.width / 2 );
+    
     //making const speed for  weapon
-    const velocity = {
+    const velocity = { 
         x : Math.cos(myAngle)*6 , //multyply with any value to increase the speed of shooting balls
 
         y : Math.sin(myAngle)*6
-    } 
+    } ;
     //console.log(e.clientX,e.clientY); clientX , clientY gives the position of x and y c=cordinates in the page
     //adding weapon to the weapons array
-    weapons.push(new Weapon(playerPosition.x , playerPosition.y ,5,"white", velocity))
+    weapons.push(new Weapon(playerPosition.x , playerPosition.y ,5,"white", velocity,lightWeaponDamage))
+})
+
+//eventlistener for heavy-weapon on right-click
+canvas.addEventListener("contextmenu",(e)=>{
+    heavyWeapon.play();
+    e.preventDefault() ;
+
+    if(playerscore <= 0) return;
+    //decreasing the score of the player if he is using specialWeapon
+    playerscore-=2;
+
+    scoreboard.innerHTML =`Score : ${playerscore}`;
+
+    //Finding angle at which we have to shoot balls
+    //atan2 is a math function that takes to input x and y condinate to give angle in radian
+    //finsing angle between player position and click co=ordinate
+    const myAngle = Math.atan2(e.clientY - canvas.height / 2 , e.clientX - canvas.width / 2 );
+    
+    //making const speed for  weapon
+    const velocity = { 
+        x : Math.cos(myAngle)*4 , //multyply with any value to increase the speed of shooting balls
+
+        y : Math.sin(myAngle)*4
+    } ;
+    //console.log(e.clientX,e.clientY); clientX , clientY gives the position of x and y c=cordinates in the page
+    //adding weapon to the weapons array
+    weapons.push(new Weapon(playerPosition.x , playerPosition.y ,15,"#0861fc", velocity,heavyWeaponDamage))
+})
+
+addEventListener("keypress",(e)=>{
+  if(e.key===" "){
+
+    if(playerscore < 20) return;
+    //decreasing the score of the player if he is using specialWeapon
+    playerscore-=20;
+    bigweapon.play();
+
+    scoreboard.innerHTML =`Score : ${playerscore}`;
+    hugeWapons.push(new HugeWeapon(0,0,"red"))
+    // alert("afsa")
+  }
+});
+
+addEventListener("contextmenu",(e)=>{
+  e.preventDefault();
+})
+addEventListener("resize",()=>{
+  window.location.reload();
 })
 animation();
+
+
 
 
