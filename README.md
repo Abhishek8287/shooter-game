@@ -1,4 +1,4 @@
-# shooter-game
+# shooter-game #abhishekshootergame.netlify.app
 
 I have made this game using html  canvas and vanila javascript.......Enjoy the game...:)
 
